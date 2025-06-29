@@ -21,7 +21,11 @@ def create_word_occurence_dict(s):
     Note that you may decide to do some preprocessing on the text before counting,
     for example making everything lower case and removing puncuation.
     """
-    raise NotImplementedError
+    s_clean = s.lower().translate(str.maketrans('', '', string.punctuation))
+    words = s_clean.split()
+
+    counts = Counter(words)
+    return dict(counts)
 
 def top_songs_with_word(word, lyrics_json, n=5):
     """
@@ -29,7 +33,18 @@ def top_songs_with_word(word, lyrics_json, n=5):
     Input: word (str), lyrics_json (including word_counts dict), optional N
     Output: list of song titles and number of occurences
     """
-    raise NotImplementedError
+    word = word.lower()
+    song_counts = []
+
+    for song in lyrics_json:
+        wc = create_word_occurence_dict(song.get('lyrics', ''))
+        count = wc.get(word, 0)
+        if count > 0:
+            song_counts.append((song['title'], count))
+
+    # Sort by highest count descending
+    top = sorted(song_counts, key=lambda x: x[1], reverse=True)[:n]
+    return top
 
 def get_lyrics_json():
     with open('az_lyrics.json', 'rb') as f:
@@ -51,4 +66,4 @@ if __name__ == '__main__':
     songs = get_lyrics_json()
     stopwords = get_stopwords()
 
-    print top_songs_with_word('love', songs)
+    print (top_songs_with_word('love', songs))
